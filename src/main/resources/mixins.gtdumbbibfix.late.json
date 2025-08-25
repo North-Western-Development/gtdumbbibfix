@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.northwesterndevelopment.gtdumbbibfix.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.gtdumbbibfix.refmap.json",
+  "target": "@env(DEFAULT)"
+}
