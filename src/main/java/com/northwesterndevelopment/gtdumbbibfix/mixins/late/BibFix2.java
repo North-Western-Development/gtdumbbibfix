@@ -1,67 +1,56 @@
 package com.northwesterndevelopment.gtdumbbibfix.mixins.late;
 
-import jds.bibliocraft.gui.GuiStockCatalog;
-import net.minecraft.client.gui.FontRenderer;
+import com.northwesterndevelopment.gtdumbbibfix.TranslationHelper;
+import gtPlusPlus.core.item.tool.misc.ItemGregtechPump;
+import jds.bibliocraft.BiblioSortingHelper;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import tconstruct.library.tools.DynamicToolPart;
+import tconstruct.library.tools.ToolCore;
 
-@Mixin(GuiStockCatalog.class)
+
+@Mixin(BiblioSortingHelper.class)
 public class BibFix2 {
-    /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in GUI
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
-     *
-     * @author North Western Development
-     * @reason see above
-     * @version 1.0
-     * @since 2025-08-25
-     */
-    @Redirect(method="func_73863_a(IIF)V", at=@At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/client/gui/FontRenderer;func_78276_b(Ljava/lang/String;III)I",
-        ordinal = 6
-    ), remap = false)
-    public int onDrawString(FontRenderer instance, String text, int x, int y, int color) {
-        return instance.drawString(text.substring(0, text.length() - 5), x, y, color);
-    }
-
-    /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in GUI compass screen
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
-     *
-     * @author North Western Development
-     * @reason see above
-     * @version 1.0
-     * @since 2025-08-25
-     */
-    @Redirect(method="func_73863_a(IIF)V", at=@At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/client/gui/FontRenderer;func_78276_b(Ljava/lang/String;III)I",
-        ordinal = 8
-    ), remap = false)
-    public int onDrawString2(FontRenderer instance, String text, int x, int y, int color) {
-        return instance.drawString(text.substring(0, text.length() - 5), x, y, color);
-    }
-
-    /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in compass chat messages
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
-     *
-     * @author North Western Development
-     * @reason see above
-     * @version 1.0
-     * @since 2025-08-25
-     */
     @Redirect(
-        method = "sendCompassUpdatePacket(I)V",
-        at = @At(
+        method="getSortedListByAlphabet(Ljava/util/ArrayList;)Ljava/util/ArrayList;",
+        at=@At(
             value = "INVOKE",
-            target = "Lnet/minecraft/util/StatCollector;translateToLocal(Ljava/lang/String;)Ljava/lang/String;",
-            ordinal = 0
+            target = "Lnet/minecraft/util/StatCollector;translateToLocal(Ljava/lang/String;)Ljava/lang/String;"
         )
     )
-    private static String onTranslate(String text) {
-        return text.substring(0, text.length() - 5);
+    private static String alphaListOnTranslate(String text) {
+        return TranslationHelper.customTranslationLogic(text);
+    }
+
+    @Redirect(
+        method = "buildUnsortedItemList(Ljava/util/ArrayList;)Ljava/util/ArrayList;",
+        at=@At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;getUnlocalizedName()Ljava/lang/String;"
+        )
+    )
+    private static String buildUnsortedOnGetUnlocalized(ItemStack stack) {
+        if (stack.hasTagCompound() && stack.getTagCompound().getCompoundTag("display").hasKey("Name")) {
+            return "~!@#CUSTOM@!!~" + stack.getTagCompound().getCompoundTag("display").getString("Name");
+        }
+        if (stack.getItem() instanceof ToolCore) {
+
+            return "~!@#TINKERTOOL@!!~" + TranslationHelper.getToolFormatString(stack);
+        }
+        if (stack.getItem() instanceof DynamicToolPart)
+        {
+            return "~!@#TINKERTOOLPART@!!~" + TranslationHelper.getToolPartFormatString(stack);
+        }
+        String mName = stack.getUnlocalizedName();
+        if (mName.equals("item.MU-metatool.01")) {
+            try {
+                return mName + ":" + ((ItemGregtechPump) stack.getItem()).getCorrectMetaForItemstack(stack);
+            } catch (Exception e) {
+                return mName;
+            }
+        }
+        return mName;
     }
 }
