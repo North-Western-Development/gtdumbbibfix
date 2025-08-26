@@ -7,14 +7,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(GuiStockCatalog.class)
-public class BibFix {
+public class BibliocraftStockroomGuiTranslationPatch {
     /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in GUI
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
+     * Run custom translation logic when translating specifically items in the GUI
      *
      * @author North Western Development
      * @reason see above
-     * @version 1.0
      * @since 2025-08-25
      */
     @Redirect(
@@ -30,12 +28,10 @@ public class BibFix {
     }
 
     /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in GUI compass screen
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
+     * Run custom translation logic when translating specifically items in the waypoint compass UI page in the GUI
      *
      * @author North Western Development
      * @reason see above
-     * @version 1.0
      * @since 2025-08-25
      */
     @Redirect(
@@ -51,12 +47,10 @@ public class BibFix {
     }
 
     /**
-     * Fixes the fix for the fix in BibFix to remove the .name from the end of items in compass chat messages
-     * Uses obfuscated name for drawScreen method for Minecraft Reasons
+     * Run custom translation logic when translating specifically items in the waypoint compass chat message
      *
      * @author North Western Development
      * @reason see above
-     * @version 1.0
      * @since 2025-08-25
      */
     @Redirect(

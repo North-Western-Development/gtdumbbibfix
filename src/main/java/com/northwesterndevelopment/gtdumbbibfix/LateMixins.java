@@ -22,9 +22,9 @@ public class LateMixins implements ILateMixinLoader {
         List<String> mixins = new ArrayList<>();
 
         if (loadedMods != null && !loadedMods.isEmpty() && loadedMods.contains("BiblioCraft")) {
-            mixins.add("late.BibFix");
-            mixins.add("late.BibFix2");
-            MyMod.LOG.info("BiblioCraft present, patching.");
+            mixins.add("late.BibliocraftStockroomGuiTranslationPatch");
+            mixins.add("late.BibliocraftSortingHelperTranslationPatch");
+            MyMod.LOG.info("Bibliocraft present, patching.");
         }
 
         return mixins;

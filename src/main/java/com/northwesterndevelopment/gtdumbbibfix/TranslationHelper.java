@@ -18,9 +18,14 @@ import java.util.Locale;
 
 public class TranslationHelper {
     public static String customTranslationLogic(String text) {
+        /*
+         * Handles items that have been renamed in an anvil, tool forged, or tool station
+         * This prevents items with custom names from mistakenly being translated through StatCollector
+         */
         if (text.startsWith("~!@#CUSTOM@!!~")) {
             return EnumChatFormatting.ITALIC + text.substring(14, text.length() - 5).replace("~!@#CUSTOM@!!~", "") + EnumChatFormatting.RESET;
         }
+        //Handles completed Tinkers Tools, since those have a complicated custom method for getting display name
         if (text.startsWith("~!@#TINKERTOOL@!!~")) {
             String[] parts = text.substring(18, text.length() - 5).split(":");
             if (parts.length == 1) {
@@ -29,6 +34,7 @@ public class TranslationHelper {
                 return String.format(StatCollector.translateToLocal("tool.nameformat"), StatCollector.translateToLocal(parts[0]), StatCollector.translateToLocal(parts[1]));
             }
         }
+        // Handles Tinkers Tool Parts, since those also have a complicated custom method for getting display name
         if (text.startsWith("~!@#TINKERTOOLPART@!!~")) {
             String[] parts = text.substring(22, text.length() - 5).split(":");
             if (parts.length == 1) {
@@ -38,10 +44,13 @@ public class TranslationHelper {
             }
         }
         String out = StatCollector.translateToLocal(text);
+        // Many items in GT have a different system for getting the item's localized name
         if (text.startsWith("gt.")) {
             int dam = getDamage(text);
+            // Handles materials like ingots and bars
             if (out.contains("%")) {
                 if (dam < 32000 && dam >= 0) out = Materials.getLocalizedNameForItem(out, dam % 1000);
+            // Handles most of the BartWorks stuff
             } else if (text.contains(".bwMetaGenerated")) {
                 String[] sections = text.split("\\.");
                 String temp = StatCollector.translateToLocal(String.format("bw.itemtype.%s", sections[1].replace("bwMetaGenerated", "")));
@@ -53,6 +62,7 @@ public class TranslationHelper {
                     }
                 }
             }
+        // Handles BartWorks ores
         } else if (text.startsWith("bw.")) {
             int dam = getDamage(text);
             if (text.contains(".blockores.01")) {
@@ -70,10 +80,13 @@ public class TranslationHelper {
                     out = out.replace("%material", werkstoff.getLocalizedName());
                 }
             }
+        // Handles IC2
         } else if (text.startsWith("ic2.")) {
             out = StatCollector.translateToLocal(text.substring(0, text.length() - 5));
+        // Handles KubaTech
         } else if (text.equals("kubaitem.teacollection.ultimate_tea.name")) {
             out = ItemTeaUltimate.getUltimateTeaDisplayName(out);
+        // Handles AE2 Fluid Crafting's custom cell name coloring
         } else if (text.contains("fluid_storage")) {
             int dam = getDamage(text);
             switch(dam) {
@@ -104,6 +117,7 @@ public class TranslationHelper {
                 default:
                     break;
             }
+        // Handles the GT++ Hand Pump things
         } else if (text.startsWith("item.MU-metatool.01")) {
             out = StatCollector.translateToLocal("gtplusplus." + text.replace(":", "."));
         }
