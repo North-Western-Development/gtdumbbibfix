@@ -127,11 +127,10 @@ public class TranslationHelper {
 
     public static String getToolFormatString(ItemStack tool) {
         if (!tool.hasTagCompound() || !tool.getTagCompound().hasKey("InfiTool")) return null;
-        if (!(tool.getItem() instanceof ToolCore)) return null;
+        if (!(tool.getItem() instanceof ToolCore core)) return null;
 
         int mat = tool.getTagCompound().getCompoundTag("InfiTool").getInteger("Head");
         ToolMaterial material = TConstructRegistry.getMaterial(mat);
-        ToolCore core = (ToolCore) tool.getItem();
 
         String toolName = core.getToolName();
         String matName = material.materialName.replaceAll(" ", "").replaceAll("_", "");
@@ -144,7 +143,7 @@ public class TranslationHelper {
     }
 
     public static String getToolPartFormatString(ItemStack tool) {
-        DynamicToolPart part = (DynamicToolPart) tool.getItem();
+        if (!(tool.getItem() instanceof DynamicToolPart part)) return null;
 
         String material;
         String matName;
