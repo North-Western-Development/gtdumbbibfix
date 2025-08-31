@@ -3,11 +3,13 @@ package com.northwesterndevelopment.gtdumbbibfix;
 import bartworks.system.material.Werkstoff;
 import com.glodblock.github.common.storage.CellType;
 import gregtech.api.enums.Materials;
+import gtPlusPlus.core.util.minecraft.MaterialUtils;
 import kubatech.loaders.item.items.ItemTeaUltimate;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import org.jetbrains.annotations.Nullable;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.tools.CustomMaterial;
 import tconstruct.library.tools.DynamicToolPart;
@@ -23,7 +25,7 @@ public class TranslationHelper {
          * This prevents items with custom names from mistakenly being translated through StatCollector
          */
         if (text.startsWith("~!@#CUSTOM@!!~")) {
-            return EnumChatFormatting.ITALIC + text.substring(14, text.length() - 5).replace("~!@#CUSTOM@!!~", "") + EnumChatFormatting.RESET;
+            return EnumChatFormatting.ITALIC + text.substring(14, text.length() - 5) + EnumChatFormatting.RESET;
         }
         //Handles completed Tinkers Tools, since those have a complicated custom method for getting display name
         if (text.startsWith("~!@#TINKERTOOL@!!~")) {
@@ -40,7 +42,7 @@ public class TranslationHelper {
             if (parts.length == 1) {
                 return StatCollector.translateToLocal(parts[0]);
             } else {
-                return StatCollector.translateToLocal(parts[0]).replaceAll("%%material", parts[1].startsWith("!!CUSTOMNAME@$@$") ? parts[1] : StatCollector.translateToLocal(parts[1]));
+                return StatCollector.translateToLocal(parts[0]).replaceAll("%%material", parts[1].startsWith("!!CUSTOMNAME@$@$") ? parts[1].replace("!!CUSTOMNAME@$@$", "") : StatCollector.translateToLocal(parts[1]));
             }
         }
         String out = StatCollector.translateToLocal(text);
@@ -49,8 +51,9 @@ public class TranslationHelper {
             int dam = getDamage(text);
             // Handles materials like ingots and bars
             if (out.contains("%")) {
-                if (dam < 32000 && dam >= 0) out = Materials.getLocalizedNameForItem(out, dam % 1000);
-            // Handles most of the BartWorks stuff
+                if (text.contains(".wire.") || text.contains(".cable.")) out = out.replaceAll("%material", MaterialUtils.getMaterial(text.substring(text.indexOf(".", 18) + 1, text.length() - 8)).mLocalizedName);
+                else if (dam < 32000 && dam >= 0) out = Materials.getLocalizedNameForItem(out, dam % 1000);
+                // Handles most of the BartWorks stuff
             } else if (text.contains(".bwMetaGenerated")) {
                 String[] sections = text.split("\\.");
                 String temp = StatCollector.translateToLocal(String.format("bw.itemtype.%s", sections[1].replace("bwMetaGenerated", "")));
@@ -125,7 +128,7 @@ public class TranslationHelper {
         return out;
     }
 
-    public static String getToolFormatString(ItemStack tool) {
+    public static @Nullable String getToolFormatString(ItemStack tool) {
         if (!tool.hasTagCompound() || !tool.getTagCompound().hasKey("InfiTool")) return null;
         if (!(tool.getItem() instanceof ToolCore core)) return null;
 
